@@ -9,6 +9,7 @@ MODEL="RTL8198C_GN866_AC"
 LINUX="3.10"
 BZBOX="busybox-1.13"
 RSDK="msdk-4.4.7-mips-EB-3.10-0.9.33-m32t-131227b"
+RSDK_DIR="toolchain/$RSDK"
 CUSTOM="$REPO_ROOT/boards/$BOARD"
 
 cd "$SDK"
@@ -37,7 +38,7 @@ CONFIG_MODEL_$MODEL=y
 CONFIG_LINUXDIR=linux-$LINUX
 CONFIG_BOARDDIR=boards/$BOARD
 CONFIG_BZBOXDIR=users/$BZBOX
-CONFIG_RSDKDIR=toolchain/$RSDK
+CONFIG_RSDKDIR=$RSDK_DIR
 CONFIG_MODEL=$MODEL
 CONFIG_ROUTER=GW
 CONFIG_ARCH_CPU_MIPS=y
@@ -45,14 +46,14 @@ EOF
 
 # The SDK's own Makefiles use msdk-linux-* while a few legacy users
 # components still request rsdk-linux-*.  Provide compatibility aliases.
-for tool in "$RSDK"/bin/msdk-linux-*; do
+for tool in "$RSDK_DIR"/bin/msdk-linux-*; do
   [ -e "$tool" ] || continue
   name="$(basename "$tool")"
   suffix="${name#msdk-linux-}"
-  ln -sf "$name" "$RSDK/bin/rsdk-linux-$suffix"
+  ln -sf "$name" "$RSDK_DIR/bin/rsdk-linux-$suffix"
 done
 
-export PATH="$PWD/$RSDK/bin:$PATH"
+export PATH="$PWD/$RSDK_DIR/bin:$PATH"
 export CROSS_TARGET=mips-linux
 export CROSS_COMPILE=msdk-linux-
 
