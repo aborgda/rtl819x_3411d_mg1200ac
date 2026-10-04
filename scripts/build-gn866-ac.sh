@@ -18,8 +18,7 @@ echo "SDK: $SDK"
 echo "BOARD: $BOARD"
 echo "MODEL: $MODEL"
 
-# The GN866-specific config files are kept in the repository-level
-# boards/ tree; copy them into the active SDK board tree before build.
+# Install the GN866-specific model configs into the active SDK board tree.
 for f in \
   "config.linux-$LINUX.$MODEL" \
   "config.users.$MODEL" \
@@ -28,14 +27,6 @@ do
   test -f "$CUSTOM/$f"
   cp -f "$CUSTOM/$f" "boards/$BOARD/$f"
 done
-
-rm -f target image romfs tmpfs users/busybox
-ln -s "boards/$BOARD" target
-mkdir -p target/tmpfs target/romfs target/image
-ln -s target/tmpfs tmpfs
-ln -s target/romfs romfs
-ln -s target/image image
-ln -s "users/$BZBOX" users/busybox
 
 cat > .config <<EOF
 CONFIG_BOARD_$BOARD=y
@@ -49,23 +40,37 @@ CONFIG_BZBOXDIR=users/$BZBOX
 CONFIG_RSDKDIR=toolchain/$RSDK
 CONFIG_MODEL=$MODEL
 CONFIG_ROUTER=GW
+CONFIG_ARCH_CPU_MIPS=y
 EOF
 
-cp -f "boards/$BOARD/config.linux-$LINUX.$MODEL" "linux-$LINUX/.config"
-cp -f "boards/$BOARD/config.users.$MODEL" users/.config
-cp -f "boards/$BOARD/config.$BZBOX.$MODEL" "users/$BZBOX/.config"
+# The SDK's own Makefiles use msdk-linux-* while a few legacy users
+# components still request rsdk-linux-*.  Provide compatibility aliases.
+for tool in "$RSDK"/bin/msdk-linux-*; do
+  [ -e "$tool" ] || continue
+  name="$(basename "$tool")"
+  suffix="${name#msdk-linux-}"
+  ln -sf "$name" "$RSDK/bin/rsdk-linux-$suffix"
+done
 
-export PATH="$PWD/toolchain/$RSDK/bin:$PATH"
+export PATH="$PWD/$RSDK/bin:$PATH"
+
+# Let the SDK create target/romfs/image/users/busybox and select etc.default
+# exactly as its normal configuration flow does.  No menuconfig is used.
+chmod +x config/setconfig config/hdrconfig
+./config/setconfig defaults
+./config/hdrconfig "$PWD"
 
 echo "Configuration:"
 grep -E '^CONFIG_(BOARD|LINUX|BZBOX|RSDK|MODEL|ROUTER|RSDKDIR|BOARDDIR|LINUXDIR|BZBOXDIR)=' .config
 
 echo "Toolchain:"
 command -v msdk-linux-gcc
+command -v rsdk-linux-gcc
+command -v rsdk-linux-ar
 msdk-linux-gcc --version | head -1
 
 echo "Build:"
-make -j"${JOBS:-2}" V=1
+make -j1 V=1
 
 echo "Images:"
 find target/image -maxdepth 1 -type f -printf '%f %s bytes\n' 2>/dev/null || true
