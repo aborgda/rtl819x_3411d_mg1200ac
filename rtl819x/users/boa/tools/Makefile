@@ -1,4 +1,4 @@
-CC=gcc
+CC=gcc -m32
 DEBUG = -g
 IFLAGS = -I. -I../apmib -I..
 CFLAGS = $(SUPP) # -static
