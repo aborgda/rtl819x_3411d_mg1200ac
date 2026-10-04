@@ -1351,8 +1351,8 @@ int create_inode(squashfs_inode *i_no, struct dir_info *dir_info,
 	}
 	else if(type == SQUASHFS_CHRDEV_TYPE || type == SQUASHFS_BLKDEV_TYPE) {
 		struct squashfs_dev_inode_header *dev = &inode_header.dev;
-		unsigned int major_num = major_num(buf->st_rdev);
-		unsigned int minor_num = minor_num(buf->st_rdev);
+		unsigned int major_num = major(buf->st_rdev);
+		unsigned int minor_num = minor(buf->st_rdev);
 
 		if(major_num > 0xfff) {
 			ERROR("Major %d out of range in device node %s, "
