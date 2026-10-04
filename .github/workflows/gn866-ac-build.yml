@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - gn866-ac-build
+  pull_request:
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
@@ -34,8 +37,8 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          find target/image -maxdepth 1 -type f -exec cp -v {} artifacts/ \; 2>/dev/null || true
-          find image -maxdepth 1 -type f -exec cp -v {} artifacts/ \; 2>/dev/null || true
+          find target/image -maxdepth 1 -type f -exec cp -v {} artifacts/ ; 2>/dev/null || true
+          find image -maxdepth 1 -type f -exec cp -v {} artifacts/ ; 2>/dev/null || true
           ls -lh artifacts || true
 
       - name: Upload GN866 AC firmware
