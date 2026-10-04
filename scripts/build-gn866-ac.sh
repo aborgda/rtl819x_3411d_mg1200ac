@@ -53,12 +53,25 @@ for tool in "$RSDK"/bin/msdk-linux-*; do
 done
 
 export PATH="$PWD/$RSDK/bin:$PATH"
+export CROSS_TARGET=mips-linux
+export CROSS_COMPILE=msdk-linux-
 
 # Let the SDK create target/romfs/image/users/busybox and select etc.default
 # exactly as its normal configuration flow does.  No menuconfig is used.
 chmod +x config/setconfig config/hdrconfig
 ./config/setconfig defaults
 ./config/hdrconfig "$PWD"
+
+# Recreate compatibility aliases after SDK cleanup/oldconfig and keep the
+# real bundled compiler as the default for users and BusyBox builds.
+export CROSS_TARGET=mips-linux
+export CROSS_COMPILE=msdk-linux-
+for tool in "$RSDK"/bin/msdk-linux-*; do
+  [ -e "$tool" ] || continue
+  name="$(basename "$tool")"
+  suffix="${name#msdk-linux-}"
+  ln -sf "$name" "$RSDK/bin/rsdk-linux-$suffix"
+done
 
 echo "Configuration:"
 grep -E '^CONFIG_(BOARD|LINUX|BZBOX|RSDK|MODEL|ROUTER|RSDKDIR|BOARDDIR|LINUXDIR|BZBOXDIR)=' .config
@@ -70,7 +83,7 @@ command -v rsdk-linux-ar
 msdk-linux-gcc --version | head -1
 
 echo "Build:"
-make -j1 V=1
+CROSS_TARGET=mips-linux CROSS_COMPILE=msdk-linux- make -j1 V=1
 
 echo "Images:"
 find target/image -maxdepth 1 -type f -printf '%f %s bytes\n' 2>/dev/null || true
