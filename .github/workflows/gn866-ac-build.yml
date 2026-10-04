@@ -3,6 +3,7 @@ name: GN866 AC build
 on:
   push:
     branches:
+      - master
       - gn866-ac-build
   pull_request:
     branches:
