@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - gn866-ac-build
+      - fix/gn866-zlib-build
   pull_request:
     branches:
       - master
@@ -25,7 +26,7 @@ jobs:
           export DEBIAN_FRONTEND=noninteractive
           dpkg --add-architecture i386
           apt-get update
-          apt-get install -y build-essential gcc g++ gcc-multilib g++-multilib make bc bison flex rsync unzip zip xz-utils bzip2 gzip file cpio gettext pkg-config python3 libncurses5-dev libc6-i386 lib32z1 libstdc++6:i386 zlib1g:i386 libc6-dev-i386
+          apt-get install -y build-essential gcc g++ gcc-multilib g++-multilib make bc bison flex rsync unzip zip xz-utils bzip2 gzip file cpio gettext pkg-config python3 libncurses5-dev libc6-i386 lib32z1 libstdc++6:i386 zlib1g-dev zlib1g:i386 libc6-dev-i386
 
       - name: Configure GN866 AC
         run: |
