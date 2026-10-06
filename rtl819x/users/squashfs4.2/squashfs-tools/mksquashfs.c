@@ -49,6 +49,9 @@
 #include <regex.h>
 #include <fnmatch.h>
 #include <sys/wait.h>
+#ifdef linux
+#include <sys/sysmacros.h>
+#endif
 
 #ifndef linux
 #define __BYTE_ORDER BYTE_ORDER
