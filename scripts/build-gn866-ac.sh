@@ -19,7 +19,6 @@ echo "SDK: $SDK"
 echo "BOARD: $BOARD"
 echo "MODEL: $MODEL"
 
-# Install the GN866-specific model configs into the active SDK board tree.
 for f in \
   "config.linux-$LINUX.$MODEL" \
   "config.users.$MODEL" \
@@ -44,8 +43,6 @@ CONFIG_ROUTER=GW
 CONFIG_ARCH_CPU_MIPS=y
 EOF
 
-# The SDK's own Makefiles use msdk-linux-* while a few legacy users
-# components still request rsdk-linux-*.  Provide compatibility aliases.
 for tool in "$RSDK_DIR"/bin/msdk-linux-*; do
   [ -e "$tool" ] || continue
   name="$(basename "$tool")"
@@ -57,14 +54,19 @@ export PATH="$PWD/$RSDK_DIR/bin:$PATH"
 export CROSS_TARGET=mips-linux
 export CROSS_COMPILE=msdk-linux-
 
-# Let the SDK create target/romfs/image/users/busybox and select etc.default
-# exactly as its normal configuration flow does.  No menuconfig is used.
 chmod +x config/setconfig config/hdrconfig
 ./config/setconfig defaults
 ./config/hdrconfig "$PWD"
 
-# Recreate compatibility aliases after SDK cleanup/oldconfig and keep the
-# real bundled compiler as the default for users and BusyBox builds.
+# The GN866 model has no tracked model-specific etc directory.  The SDK
+# expects a populated "etc" source during romfs; use the board's standard
+# GW etc.default tree, which contains the init scripts and base configuration.
+rm -rf "boards/$BOARD/etc"
+cp -a "boards/$BOARD/etc.default" "boards/$BOARD/etc"
+# Legacy romfs expects a source directory named home; GN866 does not need preloaded files.
+rm -rf "boards/$BOARD/home"
+mkdir -p "boards/$BOARD/home"
+
 export CROSS_TARGET=mips-linux
 export CROSS_COMPILE=msdk-linux-
 for tool in "$RSDK"/bin/msdk-linux-*; do

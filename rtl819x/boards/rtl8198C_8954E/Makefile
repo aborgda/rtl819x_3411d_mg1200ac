@@ -1,4 +1,3 @@
-
 # Realtek Semiconductor Corp.
 #
 # Makefile -- Build instructions for Realtek RLXOCP with initramfs
@@ -49,19 +48,19 @@ WEBPAGE_BIN =
 ifdef CONFIG_RTL_8198_AP_ROOT
 WEBIMAGE_GZ = webpages-ap.gz
 WEB_NAME = web-gw
-else	#!CONFIG_RTL_8198_AP_ROOT
+else
 WEBIMAGE_GZ = webpages-gw.gz
 WEB_NAME = web-gw
-endif	#CONFIG_RTL_8198_AP_ROOT
-else	#!CONFIG_RTL_WEBPAGES_IN_ROOTFS
+endif
+else
 ifdef CONFIG_RTL_8198_AP_ROOT
 WEBPAGE_BIN = image/webpages-ap.bin
 WEBIMAGE_BIN = webpages-ap.bin
-else	#!CONFIG_RTL_8198_AP_ROOT
+else
 WEBPAGE_BIN = image/webpages-gw.bin
 WEBIMAGE_BIN = webpages-gw.bin
-endif	#CONFIG_RTL_8198_AP_ROOT
-endif	#CONFIG_RTL_WEBPAGES_IN_ROOTFS
+endif
+endif
 endif
 
 ifdef CONFIG_APP_SAMBA
@@ -121,8 +120,8 @@ endif
 ifdef CONFIG_APP_LOGIN_CONSOLE
 	$(ROMFSINST) -s /var/shadow /etc/shadow
 endif
-ifndef	CONFIG_APP_SAMBA_WEB
-	$(ROMFSINST) home /home
+ifndef CONFIG_APP_SAMBA_WEB
+	if [ -e home ]; then $(ROMFSINST) home /home; fi
 endif
 	$(ROMFSINST) -s bin/init /init
 ifneq ($(CONFIG_APP_BOA), y)
@@ -142,8 +141,6 @@ ifdef CONFIG_APP_SAMBA_WEB
 	$(ROMFSINST) etc/passwd /etc/passwd_orig
 	$(ROMFSINST) etc/group /etc/group_orig
 	$(ROMFSINST) etc/samba/smbpasswd /etc/samba/smbpasswd_orig
-#	$(ROMFSINST) etc/samba/smb.conf /etc/samba/smb_orig.conf
-
 	$(ROMFSINST) -s /var/passwd /etc/passwd
 	$(ROMFSINST) -s /var/group /etc/group
 	$(ROMFSINST) -s /var/samba/smb.conf /etc/samba/smb.conf
@@ -175,7 +172,6 @@ endif
 ifdef CONFIG_APP_WEAVE
 	mkdir $(DIR_ROMFS)/etc/ssl
 endif
-#Oprofile
 	$(ROMFSINST) -s /var/oprofile /dev/oprofile
 	$(ROMFSINST) -s /var/root /root
 
@@ -185,7 +181,6 @@ endif
 ifeq ($(CONFIG_APP_BOA), y)
 	sed -i "s/webs&/boa/" $(DIR_ROMFS)/etc/init.d/rcS
 endif
-
 
 ifdef CONFIG_APP_LOGIN_CONSOLE
 	sed -i 's/^::respawn:-\/bin\/sh/::respawn:\/bin\/getty -L ttyS0 38400 vt100/' $(DIR_ROMFS)/etc/inittab
@@ -200,7 +195,6 @@ endif
 	echo "Fastpath source version is: $(FASTPATH_VERSION)" >> $(DIR_ROMFS)/etc/version
 	echo "Feature support version is: $(FEATURE_VERSION)" >> $(DIR_ROMFS)/etc/version
 
-	# add by pk
 ifdef CONFIG_ROOTFS_SQUASH
 	$(DIR_TOOLS)/mkimg USE_SAMBA=$(SAMBA_FLG) USERS_DIR="$(DIR_USERS)" LINUX_DIR="$(DIR_LINUX)" TOOLS_DIR="$(DIR_TOOLS)" TOOLCHAIN_DIR="$(DIR_RSDK)" || exit $$?
 else

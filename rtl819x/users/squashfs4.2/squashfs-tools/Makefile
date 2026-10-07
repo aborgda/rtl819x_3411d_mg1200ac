@@ -86,8 +86,8 @@ XATTR_SUPPORT = 1
 # by Unsquashfs by default.  If selected users can disable xattr support by
 # using the -no-xattrs option
 #
-# If unselected, Mksquashfs/Unsquashfs won't store and extract xattrs by
-# default.  Users can enable xattrs by using the -xattrs option.
+# If unselected, Mksquashfs/Unsquashfs won't store and extract xattrs
+# by default.  Users can enable xattrs by using the -xattrs option.
 XATTR_DEFAULT = 1
 
 
@@ -106,7 +106,7 @@ UNSQUASHFS_OBJS = unsquashfs.o unsquash-1.o unsquash-2.o unsquash-3.o \
 CFLAGS ?= -O2
 CFLAGS += $(EXTRA_CFLAGS) $(INCLUDEDIR) -D_FILE_OFFSET_BITS=64 \
 	-D_LARGEFILE_SOURCE -D_GNU_SOURCE -DCOMP_DEFAULT=\"$(COMP_DEFAULT)\" \
-	-Wall
+	-Wall -include sys/sysmacros.h
 
 LIBS = -lpthread -lm
 ifeq ($(GZIP_SUPPORT),1)
@@ -172,7 +172,7 @@ endif
 #
 ifeq ($(LZMA_SUPPORT),1)
 ifndef LZMA_DIR
-$(error "LZMA_SUPPORT requires LZMA_DIR to be also defined")
+$(error \"LZMA_SUPPORT requires LZMA_DIR to be also defined\")
 endif
 endif
 
@@ -181,7 +181,7 @@ endif
 #
 ifeq ($(LZMA_XZ_SUPPORT),1)
 ifeq ($(LZMA_SUPPORT),1)
-$(error "Both LZMA_XZ_SUPPORT and LZMA_SUPPORT cannot be specified")
+$(error \"Both LZMA_XZ_SUPPORT and LZMA_SUPPORT cannot be specified\")
 endif
 endif
 
@@ -189,14 +189,14 @@ endif
 # At least one compressor must have been selected
 #
 ifndef COMPRESSORS
-$(error "No compressor selected! Select one or more of GZIP, LZMA, XZ or LZO!")
+$(error \"No compressor selected! Select one or more of GZIP, LZMA, XZ or LZO!\")
 endif
 
 #
 # COMP_DEFAULT must be a selected compressor
 #
 ifeq (, $(findstring $(COMP_DEFAULT), $(COMPRESSORS)))
-$(error "COMP_DEFAULT isn't selected to be built!")
+$(error \"COMP_DEFAULT isn't selected to be built!\")
 endif
 
 .PHONY: all
@@ -256,7 +256,7 @@ clean:
 	-rm -f *.o mksquashfs unsquashfs $(LZMA_DIR)/C/*.o
 .PHONY: romfs
 romfs:
-	@echo "squashfs tools done"
+	@echo \"squashfs tools done\"
 
 .PHONY: install
 install: mksquashfs unsquashfs
