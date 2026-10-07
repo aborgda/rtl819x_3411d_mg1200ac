@@ -63,6 +63,9 @@ chmod +x config/setconfig config/hdrconfig
 # GW etc.default tree, which contains the init scripts and base configuration.
 rm -rf "boards/$BOARD/etc"
 cp -a "boards/$BOARD/etc.default" "boards/$BOARD/etc"
+# Legacy romfs expects a source directory named home; GN866 does not need preloaded files.
+rm -rf "boards/$BOARD/home"
+mkdir -p "boards/$BOARD/home"
 
 export CROSS_TARGET=mips-linux
 export CROSS_COMPILE=msdk-linux-
